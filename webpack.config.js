@@ -12,12 +12,7 @@ module.exports = {
     devtool: "source-map",
 
     resolve: {
-        extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
-        alias: {
-            // awful and temporary workaround to reference browser bundle instead of node's, see:
-            // https://github.com/wycats/handlebars.js/issues/1102
-            "handlebars": path.join(__dirname, 'node_modules', "handlebars", "dist", "handlebars.min.js")
-        }
+        extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"],       
     },
 
     module: {

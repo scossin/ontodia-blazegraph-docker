@@ -1,11 +1,8 @@
 import { createElement, ClassAttributes } from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { Workspace, WorkspaceProps, SparqlDataProvider, OWLStatsSettings } from 'ontodia';
+import { Workspace, WorkspaceProps, SparqlDataProvider, OWLStatsSettings, OWLRDFSSettings, SparqlQueryMethod } from 'ontodia';
 
-
-//require('jointjs/css/layout.css');
-//require('jointjs/css/themes/default.css');
 
 function onWorkspaceMounted(workspace: Workspace) {
     if (!workspace) { return; }
@@ -17,14 +14,15 @@ function onWorkspaceMounted(workspace: Workspace) {
     });
 
     model.importLayout({
-        validateLinks: true,
+        validateLinks: true,        
         dataProvider: new SparqlDataProvider({
             endpointUrl: '/sparql-endpoint',
             imagePropertyUris: [
                 'http://collection.britishmuseum.org/id/ontology/PX_has_main_representation',
                 'http://xmlns.com/foaf/0.1/img',
             ],
-        }, OWLStatsSettings),
+            queryMethod: SparqlQueryMethod.POST
+        }, OWLRDFSSettings),
     });
 }
 
