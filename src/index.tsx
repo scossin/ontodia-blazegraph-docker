@@ -2,6 +2,7 @@ import { createElement, ClassAttributes } from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { Workspace, WorkspaceProps, SparqlDataProvider, OWLStatsSettings, OWLRDFSSettings, SparqlQueryMethod } from 'ontodia';
+import { saveLayoutToLocalStorage, tryLoadLayoutFromLocalStorage } from './localstorage';
 
 
 function onWorkspaceMounted(workspace: Workspace) {
@@ -13,7 +14,9 @@ function onWorkspaceMounted(workspace: Workspace) {
         console.log(iri);
     });
 
+    const layoutData = tryLoadLayoutFromLocalStorage();
     model.importLayout({
+        layoutData,
         validateLinks: true,        
         dataProvider: new SparqlDataProvider({
             endpointUrl: '/sparql-endpoint',
@@ -28,6 +31,11 @@ function onWorkspaceMounted(workspace: Workspace) {
 
 const props: WorkspaceProps & ClassAttributes<Workspace> = {
     ref: onWorkspaceMounted,
+    onSaveDiagram: workspace => {
+        const {layoutData} = workspace.getModel().exportLayout();
+        window.location.hash = saveLayoutToLocalStorage(layoutData);
+        window.location.reload();
+    },
 };
 
  document.addEventListener('DOMContentLoaded', () => {
