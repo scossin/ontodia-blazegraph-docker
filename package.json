@@ -11,7 +11,7 @@
     "start": "node ./server.js"
   },
   "dependencies": {
-    "ontodia": "^0.5.2",
+    "ontodia": "^0.6.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "whatwg-fetch": "^2.0.2"
@@ -23,7 +23,7 @@
     "ts-loader": "^2.0.0",
     "tslint": "^4.4.2",
     "typescript": "2.3.2",
-    "source-map-loader": "^0.1.6",    
+    "source-map-loader": "^0.1.6",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"
   },
