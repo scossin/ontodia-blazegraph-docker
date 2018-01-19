@@ -25,7 +25,7 @@ function onWorkspaceMounted(workspace: Workspace) {
                 'http://xmlns.com/foaf/0.1/img',
             ],
             queryMethod: SparqlQueryMethod.POST
-        }, OWLRDFSSettings),
+        }, {...OWLStatsSettings, ...{dataLabelProperty: '<http://semanticweb.fm.epbs.ru/RBOntology_v_2.owl#name>'}}),
     });
 }
 
