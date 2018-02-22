@@ -31,28 +31,10 @@ function onWorkspaceMounted(workspace: Workspace) {
     ];
 
     const resolveLinkTemplates = (linkTypeId: string) => {
-        return ['${p}mapsTo', '${p}mapsFrom'].find(test => test === linkTypeId) == undefined ? undefined : {
-            markerTarget: {
-                fill: '#d7e1ec',
-            },
+        return [`${p}mapsTo`, `${p}mapsFrom`].find(test => test === linkTypeId) == undefined ? undefined : {
             renderLink: (link: LinkModel) => {
                 const label = link.properties['http://www.w3.org/2000/01/rdf-schema#label'].values[0].text;
-                return {
-                    connection: {
-                        stroke: '#d7e1ec',
-                        'stroke-width': 1,
-                    },
-                    label: {
-                        attrs: {
-                            rect: {fill: '#f8f8f8'},
-                            text: {
-                                fill: '#8CA0B3',
-                                'font-size': '11px',
-                                text: label !== undefined ? [{text: label, lang: ''}] : undefined,
-                            },
-                        },
-                    },
-                };
+                return {label: {attrs: {text: {text: [{text: label, lang: ''}]}}}};
             },
         };
     };
