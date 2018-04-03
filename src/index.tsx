@@ -34,7 +34,12 @@ function onWorkspaceMounted(workspace: Workspace) {
         return [`${p}mapsTo`, `${p}mapsFrom`].find(test => test === linkTypeId) == undefined ? undefined : {
             renderLink: (link: LinkModel) => {
                 const label = link.properties['http://www.w3.org/2000/01/rdf-schema#label'].values[0].text;
-                return {label: {attrs: {text: {text: [{text: label, lang: ''}]}}}};
+                return {
+                    label: {attrs: {text: {text: [{text: label, lang: ''}]}, rect: {}}},
+                    connection: {
+                        stroke: '#34c7f3',
+                        'stroke-width': 2,
+                    }};
             },
         };
     };
@@ -79,25 +84,36 @@ function onWorkspaceMounted(workspace: Workspace) {
     } else {
         const graphBuilder = new SparqlGraphBuilder(sparqlDataProvider);
         loadingGraph = graphBuilder.getGraphFromConstruct(
-            `CONSTRUCT { ?s a ?type } WHERE {?s a ?type VALUES ?type {owl:Class rdfs:Class}}`,
+            `CONSTRUCT { 
+                    ?s <http://example.com/prop> "prop"
+                    } WHERE {
+                    ?s a ?type 
+                    VALUES ?type {owl:Class rdfs:Class} 
+                    FILTER NOT EXISTS {
+                        ?s rdfs:subClassOf? ?blockedTypes. 
+                        VALUES ?blockedTypes { <https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/FloatingInterestRate> <https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/ReferenceInterestRate>}
+                        } 
+                    }`,
         );
         workspace.showWaitIndicatorWhile(loadingGraph);
     }
 
     loadingGraph.then(({layoutData, preloadedElements}) => {
+        const data = removeLinks(layoutData);
+        console.log(`Elements count: ${data.cells.length}`);
         return model.importLayout({
-            layoutData: removeLinks(layoutData),
+            layoutData: data,
             validateLinks: false,
             dataProvider: sparqlDataProvider,
         });
     }).then(() => {
+        return model.requestLinksOfType();
+    }).then(() => {
         if (!savedLayoutData) {
-            window.setTimeout(() => {
                 workspace.forceLayout();
                 workspace.zoomToFit();
-            }, 1000);
         }
-    })
+    });
 }
 
 function removeLinks(layoutData: LayoutData): LayoutData {
