@@ -9,10 +9,6 @@ function onWorkspaceMounted(workspace: Workspace) {
     if (!workspace) { return; }
 
     const model = workspace.getModel();
-    model.graph.on('action:iriClick', (iri: string) => {
-        window.open(iri);
-        console.log(iri);
-    });
 
     const layoutData = tryLoadLayoutFromLocalStorage();
     model.importLayout({
@@ -31,6 +27,12 @@ function onWorkspaceMounted(workspace: Workspace) {
 
 const props: WorkspaceProps & ClassAttributes<Workspace> = {
     ref: onWorkspaceMounted,
+    viewOptions: {
+        onIriClick: iri => {
+            window.open(iri);
+            console.log(iri);
+            },
+    },
     onSaveDiagram: workspace => {
         const {layoutData} = workspace.getModel().exportLayout();
         window.location.hash = saveLayoutToLocalStorage(layoutData);
