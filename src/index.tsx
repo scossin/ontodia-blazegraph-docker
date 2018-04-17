@@ -72,6 +72,19 @@ function onWorkspaceMounted(workspace: Workspace) {
                 \${linkConfigurations} 
             }                
         `,
+            elementInfoQuery: `
+        CONSTRUCT {
+            ?inst rdf:type ?class .
+            ?inst rdfs:label ?label .
+            ?inst ?propType ?propValue.
+        } WHERE {
+            VALUES (?inst) {\${ids}}
+            OPTIONAL { ?inst rdfs:isDefinedBy ?class. }
+            OPTIONAL { ?inst \${dataLabelProperty} ?label}
+            OPTIONAL { ?inst ?propType ?propValue.
+            FILTER (isLiteral(?propValue)) }
+        }
+    `,
         }
     });
 
