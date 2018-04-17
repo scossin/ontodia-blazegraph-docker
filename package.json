@@ -11,6 +11,11 @@
     "start": "node ./server.js"
   },
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "http-proxy-middleware": "^0.18.0",
+    "http-proxy-response-rewrite": "0.0.1",
+    "node-cache": "^4.2.0",
     "ontodia": "^0.8.0-dev.20180413",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
