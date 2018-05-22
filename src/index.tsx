@@ -73,11 +73,7 @@ function onWorkspaceMounted(workspace: Workspace) {
             }                
         `,
             elementInfoQuery: `
-        CONSTRUCT {
-            ?inst rdf:type ?class .
-            ?inst rdfs:label ?label .
-            ?inst ?propType ?propValue.
-        } WHERE {
+        SELECT ?inst ?class ?label ?propType ?propValue WHERE {
             VALUES (?inst) {\${ids}}
             OPTIONAL { ?inst rdfs:isDefinedBy ?class. }
             OPTIONAL { ?inst \${dataLabelProperty} ?label}
@@ -106,7 +102,7 @@ function onWorkspaceMounted(workspace: Workspace) {
                         ?s rdfs:subClassOf? ?blockedTypes. 
                         VALUES ?blockedTypes { <https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/FloatingInterestRate> <https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/ReferenceInterestRate>}
                         } 
-                    }`,
+                    } ORDER BY ?s OFFSET 1800 LIMIT 400`,
         );
         workspace.showWaitIndicatorWhile(loadingGraph);
     }
