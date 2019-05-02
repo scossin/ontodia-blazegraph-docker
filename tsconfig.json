@@ -10,6 +10,6 @@
   },
   "include": [
     "./src/**/*",
-    "./typings/index.d.ts"
+    "./node_modules/ontodia/typings/local/rdf-ext/index.d.ts"
   ]
 }

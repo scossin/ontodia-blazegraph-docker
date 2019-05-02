@@ -3,18 +3,19 @@ import * as ReactDOM from 'react-dom';
 
 import {
     Workspace, WorkspaceProps, SparqlDataProvider, OWLStatsSettings, OWLRDFSSettings, SparqlQueryMethod,
-    LinkModel, SparqlGraphBuilder, LinkConfiguration
+    LinkModel, SparqlGraphBuilder, LinkConfiguration, Link
 } from 'ontodia';
 import { saveLayoutToLocalStorage, tryLoadLayoutFromLocalStorage } from './localstorage';
-import {LayoutData} from "ontodia/ontodia/diagram/layoutData";
+import {LayoutData} from 'ontodia';
+import {Dictionary, ElementModel, IriProperty} from "ontodia/ontodia/data/model";
+import {SerializedDiagram} from "ontodia/ontodia/editor/serializedDiagram";
 
+const p = 'http://ontodia.org/schema#';
 
 function onWorkspaceMounted(workspace: Workspace) {
     if (!workspace) { return; }
 
     const model = workspace.getModel();
-
-    const p = 'http://ontodia.org/schema#';
 
     const linkConfigurations: LinkConfiguration[] = [
         {
@@ -29,21 +30,6 @@ function onWorkspaceMounted(workspace: Workspace) {
             path: `$source rdfs:subClassOf $target.`,
         }
     ];
-
-    const resolveLinkTemplates = (linkTypeId: string) => {
-        return [`${p}mapsTo`, `${p}mapsFrom`].find(test => test === linkTypeId) == undefined ? undefined : {
-            renderLink: (link: LinkModel) => {
-                const label = link.properties['http://www.w3.org/2000/01/rdf-schema#label'].values[0].text;
-                return {
-                    label: {attrs: {text: {text: [{text: label, lang: ''}]}, rect: {}}},
-                    connection: {
-                        stroke: '#34c7f3',
-                        'stroke-width': 2,
-                    }};
-            },
-        };
-    };
-    workspace.getDiagram().registerLinkTemplateResolver(resolveLinkTemplates);
 
     let sparqlDataProvider = new SparqlDataProvider({
         endpointUrl: '/sparql-endpoint',
@@ -90,10 +76,13 @@ function onWorkspaceMounted(workspace: Workspace) {
 
     const savedLayoutData = tryLoadLayoutFromLocalStorage();
 
-    let loadingGraph;
+    let loadingGraph : Promise<{
+            preloadedElements: Dictionary<ElementModel>;
+        diagram: SerializedDiagram;
+    }>;
 
     if (savedLayoutData) {
-        loadingGraph = Promise.resolve({layoutData: savedLayoutData, preloadedElements: {}});
+        loadingGraph = Promise.resolve({diagram: savedLayoutData, preloadedElements: {}});
     } else {
         const graphBuilder = new SparqlGraphBuilder(sparqlDataProvider);
         loadingGraph = graphBuilder.getGraphFromConstruct(
@@ -111,12 +100,12 @@ function onWorkspaceMounted(workspace: Workspace) {
         workspace.showWaitIndicatorWhile(loadingGraph);
     }
 
-    loadingGraph.then(({layoutData, preloadedElements}) => {
-        const data = removeLinks(layoutData);
-        console.log(`Elements count: ${data.cells.length}`);
+    loadingGraph.then(({preloadedElements, diagram}) => {
+        diagram.layoutData.links = [];
+        console.log(`Elements count: ${diagram.layoutData.elements.length}`);
         return model.importLayout({
-            layoutData: data,
-            validateLinks: false,
+            diagram,
+            validateLinks: true,
             dataProvider: sparqlDataProvider,
         });
     }).then(() => {
@@ -129,23 +118,35 @@ function onWorkspaceMounted(workspace: Workspace) {
     });
 }
 
-function removeLinks(layoutData: LayoutData): LayoutData {
-    return {cells: layoutData.cells.filter(cell=>cell.type=='element')};
-}
+const resolveLinkTemplates = (linkTypeId: string) => {
+    return [`${p}mapsTo`, `${p}mapsFrom`].find(test => test === linkTypeId) == undefined ? undefined : {
+        renderLink: (link: Link) => {
+            const prop = link.data.properties['http://www.w3.org/2000/01/rdf-schema#label'];
+            const label = (prop as IriProperty).values[0].value;
+            return {
+                label: {attrs: {text: {text: [{text: label, lang: ''}]}, rect: {}}},
+                connection: {
+                    stroke: '#34c7f3',
+                    'stroke-width': 2,
+                }};
+        },
+    };
+};
 
 const props: WorkspaceProps & ClassAttributes<Workspace> = {
     ref: onWorkspaceMounted,
     viewOptions: {
         onIriClick: iri => {
-            window.open(iri);
+            window.open(iri.iri);
             console.log(iri);
             },
     },
     onSaveDiagram: workspace => {
-        const {layoutData} = workspace.getModel().exportLayout();
-        window.location.hash = saveLayoutToLocalStorage(layoutData);
+        const diagram = workspace.getModel().exportLayout();
+        window.location.hash = saveLayoutToLocalStorage(diagram);
         window.location.reload();
     },
+    linkTemplateResolver: resolveLinkTemplates
 };
 
  document.addEventListener('DOMContentLoaded', () => {
