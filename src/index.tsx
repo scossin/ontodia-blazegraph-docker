@@ -16,60 +16,21 @@ function onWorkspaceMounted(workspace: Workspace) {
 
     const model = workspace.getModel();
 
-    const linkConfigurations: LinkConfiguration[] = [
-        {
-            id: `${p}mapsTo`,
-            inverseId: `${p}mapsFrom`,
-            path: `?property rdfs:domain $source; rdfs:range $target.`,
-            properties: `?property rdfs:label ?propValue. BIND(rdfs:label as ?propType)`
-        },
-        {
-            id: `${p}subClassOf`,
-            inverseId: `${p}parentClassOf`,
-            path: `$source rdfs:subClassOf $target.`,
-        }
-    ];
-
     let sparqlDataProvider = new SparqlDataProvider({
         endpointUrl: '/sparql-endpoint',
         queryMethod: SparqlQueryMethod.POST,
-    }, {...OWLRDFSSettings, ...{
-            defaultPrefix: OWLRDFSSettings.defaultPrefix + `
+    }, {...OWLStatsSettings, ...{
+            defaultPrefix: OWLStatsSettings.defaultPrefix + `
             PREFIX ontodia: <>
-`,
-            linkConfigurations: linkConfigurations,
-            linkTypesOfQuery: `
-    SELECT ?link (count(distinct ?outObject) as ?outCount) (count(distinct ?inObject) as ?inCount)
-    WHERE {
-            \${linkConfigurations}        
-        } group by ?link           
-`,
-            linkTypesStatisticsQuery: `
-    SELECT ?link (count(distinct ?outObject) as ?outCount) (count(distinct ?inObject) as ?inCount)
-    WHERE {
-       \${linkConfigurations}   
-    } GROUP BY ?link
 `,
             linksInfoQuery: `SELECT ?source ?type ?target ?propType ?propValue
             WHERE { 
                 VALUES (?source) {\${ids}}
                 VALUES (?target) {\${ids}}
-                \${linkConfigurations} 
+                graph ?propValue {?source ?type ?target.}
+                BIND(<http://sputniq.space/graph> as ?propType) 
             }                
         `,
-            elementInfoQuery: `
-        CONSTRUCT {
-            ?inst rdf:type ?class .
-            ?inst rdfs:label ?label .
-            ?inst ?propType ?propValue.
-        } WHERE {
-            VALUES (?inst) {\${ids}}
-            OPTIONAL { ?inst rdfs:isDefinedBy ?class. }
-            OPTIONAL { ?inst \${dataLabelProperty} ?label}
-            OPTIONAL { ?inst ?propType ?propValue.
-            FILTER (isLiteral(?propValue)) }
-        }
-    `,
         }
     });
 
@@ -86,14 +47,10 @@ function onWorkspaceMounted(workspace: Workspace) {
         const graphBuilder = new SparqlGraphBuilder(sparqlDataProvider);
         loadingGraph = graphBuilder.getGraphFromConstruct(
             `CONSTRUCT { 
-                    ?s <http://example.com/prop> "prop"
+                    ?s ?p ?o
                     } WHERE {
-                    ?s a ?type 
-                    VALUES ?type {owl:Class rdfs:Class} 
-                    FILTER NOT EXISTS {
-                        ?s rdfs:subClassOf? ?blockedTypes. 
-                        VALUES ?blockedTypes { <https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/FloatingInterestRate> <https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/ReferenceInterestRate>}
-                        } 
+                    ?s ?p ?o
+                    FILTER(ISIRI(?o)) 
                     }`,
         );
         workspace.showWaitIndicatorWhile(loadingGraph);
@@ -118,12 +75,13 @@ function onWorkspaceMounted(workspace: Workspace) {
 }
 
 const resolveLinkTemplates = (linkTypeId: string) => {
-    return [`${p}mapsTo`, `${p}mapsFrom`].find(test => test === linkTypeId) == undefined ? undefined : {
+    return {
         renderLink: (link: Link) => {
-            const prop = link.data.properties['http://www.w3.org/2000/01/rdf-schema#label'];
-            const label = (prop as LiteralProperty).values[0].text;
+            const prop = link.data.properties['http://sputniq.space/graph'];
+            const graphName = (prop as LiteralProperty).values[0].text;
+            const linkTypeName = uri2name(link.typeId);
             return {
-                label: {attrs: {text: {text: [{text: label, lang: ''}]}, rect: {}}},
+                label: {attrs: {text: {text: [{text: `<${graphName}> ${linkTypeName}`, lang: ''}]}, rect: {}}},
                 connection: {
                     stroke: '#34c7f3',
                     'stroke-width': 2,
@@ -154,3 +112,20 @@ const props: WorkspaceProps & ClassAttributes<Workspace> = {
         document.body.appendChild(container);
         ReactDOM.render(createElement(Workspace, props), container)
     });
+
+export function uri2name(uri: string): string {
+    const hashIndex = uri.lastIndexOf('#');
+    if (hashIndex !== -1 && hashIndex !== uri.length - 1) {
+        return uri.substring(hashIndex + 1);
+    }
+    const endsWithSlash = uri[uri.length - 1] === '/';
+    if (endsWithSlash) {
+        uri = uri.substring(0, uri.length - 1);
+    }
+
+    const lastPartStart = uri.lastIndexOf('/');
+    if (lastPartStart !== -1 && lastPartStart !== uri.length - 1) {
+        return uri.substring(lastPartStart + 1);
+    }
+    return uri;
+}

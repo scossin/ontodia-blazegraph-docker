@@ -30,6 +30,7 @@ module.exports = {
             "/sparql-endpoint": {
                 target: process.env.SPARQL_ENDPOINT || 'https://library-ontodia-org.herokuapp.com/sparql',
                 pathRewrite: {'/sparql-endpoint' : ''},
+                auth: process.env.SPARQL_AUTH || undefined,
                 changeOrigin: true,
                 secure: false,
             },

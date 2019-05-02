@@ -25,6 +25,7 @@ const Server = {
             pathRewrite: {'/sparql-endpoint' : ''},
             changeOrigin: true,
             secure: false,
+            auth: process.env.SPARQL_AUTH || undefined,
             onProxyReq: (proxyReq, req, res, options) => {
                 if (req.body) {
                     let bodyData = req.body;
