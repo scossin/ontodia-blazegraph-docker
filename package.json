@@ -16,17 +16,17 @@
     "http-proxy-middleware": "^0.18.0",
     "http-proxy-response-rewrite": "0.0.1",
     "node-cache": "^4.2.0",
-    "ontodia": "^0.8.0-dev.20180413",
+    "ontodia": "0.9.8",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "whatwg-fetch": "^2.0.2"
   },
   "devDependencies": {
-    "@types/react": "0.14.55",
-    "@types/react-dom": "0.14.19",
+    "@types/react": "15.6.15",
+    "@types/react-dom": "15.5.7",
     "ts-loader": "^2.0.0",
     "tslint": "^4.4.2",
-    "typescript": "2.3.2",
+    "typescript": "3.0.3",
     "source-map-loader": "^0.1.6",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"
