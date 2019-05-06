@@ -2,11 +2,11 @@ import { createElement, ClassAttributes } from 'react';
 import * as ReactDOM from 'react-dom';
 
 import {
-    Workspace, WorkspaceProps, SparqlDataProvider, OWLStatsSettings, OWLRDFSSettings, SparqlQueryMethod,
-    LinkModel, SparqlGraphBuilder, LinkConfiguration, Link
+    Workspace, WorkspaceProps, SparqlDataProvider, OWLStatsSettings, SparqlQueryMethod,
+    SparqlGraphBuilder, Link, LinkTemplate
 } from 'ontodia';
 import { saveLayoutToLocalStorage, tryLoadLayoutFromLocalStorage } from './localstorage';
-import {Dictionary, ElementModel, IriProperty, LiteralProperty} from "ontodia/ontodia/data/model";
+import {Dictionary, ElementModel, LiteralProperty} from "ontodia/ontodia/data/model";
 import {SerializedDiagram} from "ontodia/ontodia/editor/serializedDiagram";
 
 const p = 'http://ontodia.org/schema#';
@@ -74,18 +74,37 @@ function onWorkspaceMounted(workspace: Workspace) {
     });
 }
 
-const resolveLinkTemplates = (linkTypeId: string) => {
+const resolveLinkTemplates = (linkTypeId: string): LinkTemplate => {
     return {
         renderLink: (link: Link) => {
             const prop = link.data.properties['http://sputniq.space/graph'];
             const graphName = (prop as LiteralProperty).values[0].text;
-            const linkTypeName = uri2name(link.typeId);
             return {
-                label: {attrs: {text: {text: [{text: `<${graphName}> ${linkTypeName}`, lang: ''}]}, rect: {}}},
                 connection: {
                     stroke: '#34c7f3',
                     'stroke-width': 2,
-                }};
+                },
+                properties: [{
+                    position: 0.75,
+                    attrs: {
+                        text: {
+                            text: [
+                                {text: 'Named graph:', lang: ''}
+                            ],
+                        },
+                    },
+                },{
+                    position: 0.75,
+                    attrs: {
+                        text: {
+                            fill: 'green',
+                            text: [
+                                {text: `<${graphName}>`, lang: ''}
+                            ],
+                        },
+                    },
+                }],
+            };
         },
     };
 };
