@@ -16,7 +16,7 @@
     "http-proxy-middleware": "^0.18.0",
     "http-proxy-response-rewrite": "0.0.1",
     "node-cache": "^4.2.0",
-    "ontodia": "0.9.8",
+    "ontodia": "git+ssh://git@github.com/sputniq-space/ontodia-npm.git#v0.9.8-dev.20190606",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "whatwg-fetch": "^2.0.2"
