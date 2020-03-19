@@ -18,8 +18,9 @@ elif [[ -d $FILENAME ]]; then
     files="$(ls $FILENAME)"
     for file in ${files[@]}
     do 
-        filerelative="$FILENAME/$file"
+	filerelative="$FILENAME/$file"
         /bin/bash ./loadDir.sh $filerelative $BLAZEGRAPH_NAMESPACE $BLAZEGRAPH_PORT
+        sleep 10 # a mysterious bug occurs when loading big files too quickly, it stops loading and sometimes a GC overhead happens. 
     done
     exit 0
 else
