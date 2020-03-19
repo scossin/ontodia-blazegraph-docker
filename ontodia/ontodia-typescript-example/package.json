@@ -1,0 +1,46 @@
+{
+  "name": "ontodia-typescript-example",
+  "version": "1.0.0",
+  "description": "Ontodia library embedding example",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run buid",
+    "build": "node ./node_modules/webpack/bin/webpack.js",
+    "heroku-postbuild": "npm run build",
+    "demo": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --port 5000 --host 0.0.0.0 --history-api-fallback",
+    "start": "node ./server.js"
+  },
+  "dependencies": {
+    "ontodia": "^0.8.0-dev.20180328",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "whatwg-fetch": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "0.14.55",
+    "@types/react-dom": "0.14.19",
+    "ts-loader": "^2.0.0",
+    "tslint": "^4.4.2",
+    "typescript": "2.3.2",
+    "source-map-loader": "^0.1.6",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ontodia-org/ontodia-typescript-example.git"
+  },
+  "keywords": [
+    "ontodia",
+    "graph",
+    "visualization",
+    "OWL",
+    "example"
+  ],
+  "author": "Yury Emelyanov",
+  "license": "LGPL-2.1",
+  "bugs": {
+    "url": "https://github.com/ontodia-org/ontodia-typescript-example/issues"
+  },
+  "homepage": "https://github.com/ontodia-org/ontodia-typescript-example#readme"
+}
