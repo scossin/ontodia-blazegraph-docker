@@ -36,8 +36,4 @@ EOT
 
 echo "Loading $FILENAME in $BLAZEGRAPH_NAMESPACE namespace.........."
 
-## To delete namespace :
-# curl -X POST http://localhost:${JETTY_PORT}/bigdata/namespace/ROMEDI/update --data-urlencode 'update=CLEAR DEFAULT' -H 'Accept:appliation/sparql-results+json'
-
-## Load the property file (the romedi terminology is expected in the "/data/ttl" folder 
 curl -X POST --data-binary @${LOAD_PROP_FILE} --header 'Content-Type:text/plain' http://localhost:${BLAZEGRAPH_PORT}/bigdata/dataloader

@@ -1,28 +1,30 @@
-# ontodia-typescript-example
-Ontodia library embedding example in TypeScript
+# ontodia-blazegraph-docker
+A docker-compose with 2 services : 
+
+* ontodia
+* blazegraph
+
+Ontodia is a node application forked from https://github.com/ontodia-org/ontodia-typescript-example.git
 
 ## Running
+First, check the .env file to configure the services.
+Then: 
+```
+docker-compose up -d
+```
+Ontodia needs a Sparql Endpoint (set the namespace in the .env file) to connect to that doesn't exist when the ontodia service starts.
 
-First, clone repository and install all dependencies:
+## How to load data in blazegraph with the API ?
+Go to the data folder (a volume of the blazegraph container).
+Put the files to load in the ttl folder and execute the scripts loadDir.sh (or loadFile.sh to load only one file). 
 
-    git clone https://github.com/ontodia-org/ontodia-typescript-example.git
-    cd ontodia-typescript-example
-    npm install
+loadDir.sh expects one parameter: the folder name
 
-Then, start development server with
+loadFile.sh expects three parameters: the filename, the blazegraph namespace, the blazegraph port
 
-    npm run demo
+For example :
+```
+bash loadDir.sh ./ttl # recursively load all files in ttl folder
+```
 
-To terminate development server, pless Ctrl-C/Cmd-C in the console.
-
-To start in production mode compile typescript sources and start express.js server:
-    
-    npm run build
-    npm start
-
-## Configuring SPARQL endpoint
-
-To configure URL of SPARQL enpoint set SPARQL_ENDPOINT enviromental variable before starting development or express.js server. Fox example, in MacOS/Linux you can execute the following:
-
-    SPARQL_ENDPOINT=https://library-ontodia-org.herokuapp.com/sparql npm run demo
-
+The loading process can be monitored with the 'docker logs' command.
